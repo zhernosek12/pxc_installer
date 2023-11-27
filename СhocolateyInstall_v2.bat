@@ -9,10 +9,20 @@ if %errorLevel% neq 0 (
     exit /b 1
 )
 
+:: Check current PowerShell execution policy
+echo [92mChecking current PowerShell execution policy...[0m
+timeout /nobreak /t 3 >nul
+powershell -Command "Get-ExecutionPolicy"
+
+:: Set PowerShell execution policy to AllSigned
+echo [92mSetting PowerShell execution policy to AllSigned...[0m
+timeout /nobreak /t 3 >nul
+powershell -Command "Set-ExecutionPolicy AllSigned"
+
 :: Install Chocolatey
 echo [92mInstalling Chocolatey...[0m
 timeout /nobreak /t 3 >nul
-@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 
 :: Check the success of Chocolatey installation
 choco --version >nul 2>&1
@@ -26,7 +36,6 @@ if %errorLevel% neq 0 (
 echo [92mInstalling MinGW...[0m
 timeout /nobreak /t 3 >nul
 choco install mingw -y
-
 
 :: Add MinGW to PATH
 echo [92mAdding MinGW to PATH...[0m
